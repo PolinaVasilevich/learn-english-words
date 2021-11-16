@@ -187,7 +187,9 @@ export default {
     font-family: "Rock Salt", cursive;
     font-weight: bold;
 
+    appearance: none;
     outline: none;
+    background-color: transparent;
     border: none;
 
     cursor: pointer;

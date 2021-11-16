@@ -74,14 +74,16 @@ export default {
   }
 
   select {
-    padding: 5px;
-
     font-size: 1.5rem;
     font-family: "Rock Salt", cursive;
     font-weight: bold;
 
+    appearance: none;
     outline: none;
+    background-color: transparent;
     border: none;
+
+    text-align: center;
 
     cursor: pointer;
   }
