@@ -3,16 +3,15 @@
     <thead>
       <tr>
         <th>
-          <select
-            :value="selectedWords"
-            @change="$emit('update:selectedWords', $event.target.value)"
-          >
-            <option value="" disabled>Choose filter</option>
+          <my-select
+            :options="[
+              { value: 'all', label: 'All words' },
+              { value: 'learned', label: 'Learned words' },
+              { value: 'new', label: 'New words' },
+            ]"
+            v-model="selected"
+          />
 
-            <option value="all">All words</option>
-            <option value="learned">Learned words</option>
-            <option value="new">New words</option>
-          </select>
           ({{ dataTable.length }})
         </th>
 
@@ -25,7 +24,7 @@
     <tbody>
       <tr v-for="(word, index) in dataTable" :key="index">
         <th>
-          <input type="checkbox" disabled :checked="word.isLearnt" />
+          <input type="checkbox" disabled :checked="word.isLearned" />
         </th>
         <th>{{ word.Word }}</th>
         <th>{{ word.Pron }}</th>
@@ -37,6 +36,7 @@
 </template>
 
 <script>
+import { computed } from "@vue/reactivity";
 export default {
   name: "Table",
   props: {
@@ -49,6 +49,17 @@ export default {
       type: String,
       default: "all",
     },
+  },
+
+  setup(props, { emit }) {
+    const selected = computed({
+      get: () => props.selectedWords,
+      set: (val) => {
+        emit("update:selectedWords", val);
+      },
+    });
+
+    return { selected };
   },
 };
 </script>
@@ -63,6 +74,7 @@ export default {
 
   th,
   td {
+    width: 20vh;
     padding: 20px;
     border: 1px solid #ccc;
   }

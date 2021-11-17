@@ -1,13 +1,6 @@
 <template>
   <div class="dashboard">
-    <select v-model="selectedWords">
-      <option disabled value="">Choose a filter</option>
-      <option value="all">All words</option>
-      <option value="nouns">Nouns</option>
-      <option value="adjectives">Adjectives</option>
-      <option value="verbs">Verbs</option>
-      <option value="phrasal">Phrasal verbs</option>
-    </select>
+    <my-select :options="optionsSelect" v-model="selectedWords" />
     <div class="dashboard__random-word random-word" v-if="randomWord">
       <p class="random-word__definition">
         {{ randomWord.Definition }} ({{ randomWord.Translate }})
@@ -24,69 +17,99 @@
         @keyup="onKeyupHandler"
       />
     </div>
+    <p class="random-word__definition" v-else>
+      You have learned all words this category
+    </p>
   </div>
 </template>
 
 <script>
 import { ref, computed } from "@vue/reactivity";
-import { onMounted } from "@vue/runtime-core";
+import { onMounted, watch } from "@vue/runtime-core";
+
+// import _ from "lodash";
+
+import MySelect from "../components/UI/MySelect.vue";
+import { useStore } from "vuex";
 export default {
+  components: { MySelect },
   name: "dashboard",
 
   setup() {
+    const store = useStore();
+    const wordList = computed(() => store.getters["words/wordList"]);
+
     const inputWord = ref("");
-    const dataTable = ref(null);
     const randomWord = ref(null);
 
     const selectedWords = ref("all");
 
+    const optionsSelect = [
+      {
+        value: "all",
+        label: "All words",
+      },
+      {
+        value: "nouns",
+        label: "Nouns",
+      },
+      {
+        value: "adjectives",
+        label: "Adjectives",
+      },
+      {
+        value: "verbs",
+        label: "Verbs",
+      },
+      {
+        value: "phrasal",
+        label: "Phrasal verbs",
+      },
+    ];
+
     onMounted(() => {
-      dataTable.value = JSON.parse(localStorage.getItem("dataTable")) || [];
       getRandomWord();
     });
 
     const words = computed(() => {
       switch (selectedWords.value) {
         case "all":
-          return dataTable.value;
-
+          return wordList.value;
         case "nouns":
-          console.log("noun");
-          return dataTable.value.filter((word) =>
+          return wordList.value.filter((word) =>
             word["Part of Speech"].includes("n")
           );
 
         case "adjectives":
-          return dataTable.value.filter((word) =>
+          return wordList.value.filter((word) =>
             word["Part of Speech"].includes("adv")
           );
 
         case "phrasal":
-          return dataTable.value.filter((word) =>
+          return wordList.value.filter((word) =>
             word["Part of Speech"].includes("phr")
           );
 
         case "verbs":
-          return dataTable.value.filter((word) =>
+          return wordList.value.filter((word) =>
             word["Part of Speech"].includes("v")
           );
 
         default:
-          return dataTable.value;
+          return wordList.value;
       }
     });
 
     const getRandomWord = () => {
-      const dataTableWithoutLearnedWords = words.value.filter(
-        (item) => !item.isLearnt
-      );
-
-      const id = Math.floor(
-        Math.random() * dataTableWithoutLearnedWords.length
-      );
-
-      randomWord.value = dataTableWithoutLearnedWords[id];
+      if (words.value) {
+        const id = Math.floor(Math.random() * words.value.length);
+        randomWord.value = words.value[id];
+      }
     };
+
+    watch(selectedWords, () => {
+      getRandomWord();
+    });
 
     const changeWord = () => {
       alert(`Correct word is ${randomWord.value.Word.toUpperCase()}`);
@@ -104,15 +127,7 @@ export default {
       ) {
         alert(`You're right:)`);
 
-        const data = [...dataTable.value];
-
-        const index = data.findIndex(
-          (item) => item.Word === randomWord.value.Word
-        );
-
-        data[index].isLearnt = true;
-
-        localStorage.setItem("dataTable", JSON.stringify(data));
+        store.dispatch("words/ADD_LEARNED_WORD", randomWord.value);
       } else {
         alert(
           `You're wrong:( Correct word is ${randomWord.value.Word.toUpperCase()}`
@@ -130,6 +145,7 @@ export default {
       changeWord,
       selectedWords,
       words,
+      optionsSelect,
     };
   },
 };
@@ -141,6 +157,7 @@ export default {
     width: 70vw;
     margin-top: 15px;
     padding: 25px;
+    border-radius: 5px;
     border: 1px solid #5c5c5c;
 
     &__definition {
@@ -178,21 +195,6 @@ export default {
         background: lightsteelblue;
       }
     }
-  }
-
-  select {
-    padding: 10px;
-
-    font-size: 1.5rem;
-    font-family: "Rock Salt", cursive;
-    font-weight: bold;
-
-    appearance: none;
-    outline: none;
-    background-color: transparent;
-    border: none;
-
-    cursor: pointer;
   }
 }
 </style>

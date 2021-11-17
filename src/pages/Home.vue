@@ -1,6 +1,6 @@
 <template>
   <div class="home-page">
-    <div class="input" v-if="!dataTable.length">
+    <div class="input" v-if="!wordList.length">
       <input
         type="file"
         @change="onUploadFiles"
@@ -21,50 +21,46 @@ import Table from "@/components/Table/Table";
 
 import XLSX from "xlsx";
 import { onMounted } from "@vue/runtime-core";
+import { useStore } from "vuex";
 
 export default {
   name: "home",
   components: { Table },
 
   setup() {
-    const allDataTable = ref([]);
-    const dataTable = ref([]);
-    const limitWordOfPage = 10;
+    const store = useStore();
+    const wordList = computed(() => store.getters["words/wordList"]);
+
+    // const limitWordOfPage = 10;
 
     const selectedWords = ref("all");
 
     const observerRef = ref(null);
 
     onMounted(() => {
-      allDataTable.value = JSON.parse(localStorage.getItem("dataTable")) || [];
-      if (allDataTable.value.length) {
-        dataTable.value = allDataTable.value.slice(0, limitWordOfPage);
-      }
-
-      const options = {
-        rootMargin: "0px",
-        threshold: 1.0,
-      };
-
-      const callback = (entries) => {
-        if (entries[0].isIntersecting) {
-          loadMoreWords();
-        }
-      };
-      const observer = new IntersectionObserver(callback, options);
-      observer.observe(observerRef.value);
+      // const options = {
+      //   rootMargin: "0px",
+      //   threshold: 1.0,
+      // };
+      // const callback = (entries) => {
+      //   if (entries[0].isIntersecting) {
+      //     loadMoreWords();
+      //   }
+      // };
+      // const observer = new IntersectionObserver(callback, options);
+      // observer.observe(observerRef.value);
     });
 
     const words = computed(() => {
       switch (selectedWords.value) {
         case "all":
-          return allDataTable.value;
+          return wordList.value;
         case "learned":
-          return allDataTable.value.filter((word) => word.isLearnt);
+          return wordList.value.filter((word) => word.isLearned);
         case "new":
-          return allDataTable.value.filter((word) => !word.isLearnt);
+          return wordList.value.filter((word) => !word.isLearned);
         default:
-          return allDataTable.value;
+          return wordList.value;
       }
     });
 
@@ -79,61 +75,32 @@ export default {
 
         const worksheet = workbook.Sheets[sheetName];
 
-        localStorage.setItem(
-          "dataTable",
-          JSON.stringify(XLSX.utils.sheet_to_json(worksheet))
+        store.dispatch(
+          "words/SET_WORD_LIST",
+          XLSX.utils.sheet_to_json(worksheet)
         );
       };
 
       reader.readAsArrayBuffer(file);
     };
 
-    const loadMoreWords = () => {
-      dataTable.value = [
-        ...dataTable.value,
-        ...allDataTable.value.slice(
-          dataTable.value.length,
-          dataTable.value.length + limitWordOfPage
-        ),
-      ];
-    };
+    // const loadMoreWords = () => {
+    //   dataTable.value = [
+    //     ...dataTable.value,
+    //     ...allDataTable.value.slice(
+    //       dataTable.value.length,
+    //       dataTable.value.length + limitWordOfPage
+    //     ),
+    //   ];
+    // };
 
     return {
-      dataTable,
       observerRef,
       selectedWords,
       words,
+      wordList,
       onUploadFiles,
-      loadMoreWords,
     };
   },
 };
 </script>
-
-<style scoped lang="scss">
-.input {
-  width: 100%;
-  position: relative;
-  margin-top: 20px;
-  text-align: center;
-
-  &__file {
-    opacity: 0;
-    visibility: hidden;
-    position: absolute;
-  }
-
-  &__button {
-    width: 100%;
-    max-width: 290px;
-    padding: 15px;
-    height: 60px;
-    background: #1bbc9b;
-    color: #fff;
-
-    border-radius: 3px;
-    cursor: pointer;
-    margin: 0 auto;
-  }
-}
-</style>

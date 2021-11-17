@@ -1,3 +1,7 @@
+@import "@/styles/colors.scss";
+@import "@/styles/selectStyles";
+@import "@/styles/homePageStyles";
+
 * {
   padding: 0;
   margin: 0;
@@ -15,6 +19,27 @@ body {
   flex-direction: column;
   align-items: center;
 
+  &__header {
+    display: flex;
+  }
+
+  .header__link {
+    margin-right: 2rem;
+
+    color: $dark;
+    font-size: 1.2rem;
+    text-decoration: none;
+    font-weight: bold;
+
+    &:hover {
+      color: $dark-red;
+    }
+  }
+
+  .router-link-active {
+    color: $dark-red;
+  }
+
   &__title {
     margin-bottom: 20px;
   }
@@ -26,21 +51,11 @@ body {
     outline: none;
     background: none;
 
-    border: 1px solid #ccc;
+    border: 1px solid $gray;
     cursor: pointer;
 
     &:hover {
-      background-color: #ccc;
+      background-color: $gray;
     }
-  }
-
-  &__select {
-    padding: 14px;
-    width: 150px;
-
-    margin-left: 20px;
-
-    outline: none;
-    border: 1px solid #ccc;
   }
 }

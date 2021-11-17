@@ -1,0 +1,14 @@
+@import "@/styles/colors.scss";
+
+.my-select {
+  font-size: 1.5rem;
+  font-family: "Rock Salt", cursive;
+  font-weight: bold;
+
+  appearance: none;
+  outline: none;
+  background-color: transparent;
+  border: none;
+
+  cursor: pointer;
+}
