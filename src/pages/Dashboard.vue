@@ -1,6 +1,12 @@
 <template>
   <div class="dashboard">
-    <my-select :options="optionsSelect" v-model="selectedWords" />
+    <my-select
+      :options="optionsSelect"
+      v-model="selectedWords"
+      :style="{
+        margin: '15px 0',
+      }"
+    />
     <div class="dashboard__random-word random-word" v-if="randomWord">
       <p class="random-word__definition">
         {{ randomWord.Definition }} ({{ randomWord.Translate }})
@@ -38,6 +44,9 @@ export default {
   setup() {
     const store = useStore();
     const wordList = computed(() => store.getters["words/wordList"]);
+    const wordListWithoutLearnedWords = computed(() => {
+      return wordList.value.filter((item) => !item.isLearned);
+    });
 
     const inputWord = ref("");
     const randomWord = ref(null);
@@ -74,29 +83,29 @@ export default {
     const words = computed(() => {
       switch (selectedWords.value) {
         case "all":
-          return wordList.value;
+          return wordListWithoutLearnedWords.value;
         case "nouns":
-          return wordList.value.filter((word) =>
+          return wordListWithoutLearnedWords.value.filter((word) =>
             word["Part of Speech"].includes("n")
           );
 
         case "adjectives":
-          return wordList.value.filter((word) =>
+          return wordListWithoutLearnedWords.value.filter((word) =>
             word["Part of Speech"].includes("adv")
           );
 
         case "phrasal":
-          return wordList.value.filter((word) =>
+          return wordListWithoutLearnedWords.value.filter((word) =>
             word["Part of Speech"].includes("phr")
           );
 
         case "verbs":
-          return wordList.value.filter((word) =>
+          return wordListWithoutLearnedWords.value.filter((word) =>
             word["Part of Speech"].includes("v")
           );
 
         default:
-          return wordList.value;
+          return wordListWithoutLearnedWords.value;
       }
     });
 
@@ -153,6 +162,10 @@ export default {
 
 <style lang="scss">
 .dashboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
   .random-word {
     width: 70vw;
     margin-top: 15px;

@@ -12,7 +12,7 @@
             v-model="selected"
           />
 
-          ({{ dataTable.length }})
+          <!-- ({{ dataTable.length }}) -->
         </th>
 
         <th>Word</th>
@@ -83,21 +83,6 @@ export default {
   tfoot th {
     font-family: "Rock Salt", cursive;
     font-size: 1.5rem;
-  }
-
-  select {
-    font-size: 1.5rem;
-    font-family: "Rock Salt", cursive;
-    font-weight: bold;
-
-    appearance: none;
-    outline: none;
-    background-color: transparent;
-    border: none;
-
-    text-align: center;
-
-    cursor: pointer;
   }
 }
 </style>

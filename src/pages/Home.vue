@@ -31,36 +31,42 @@ export default {
     const store = useStore();
     const wordList = computed(() => store.getters["words/wordList"]);
 
-    // const limitWordOfPage = 10;
+    const totalWordsOnPage = ref(10);
+
+    const limitWordOfPage = 10;
 
     const selectedWords = ref("all");
 
     const observerRef = ref(null);
 
     onMounted(() => {
-      // const options = {
-      //   rootMargin: "0px",
-      //   threshold: 1.0,
-      // };
-      // const callback = (entries) => {
-      //   if (entries[0].isIntersecting) {
-      //     loadMoreWords();
-      //   }
-      // };
-      // const observer = new IntersectionObserver(callback, options);
-      // observer.observe(observerRef.value);
+      const options = {
+        rootMargin: "0px",
+        threshold: 1.0,
+      };
+      const callback = (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMoreWords();
+        }
+      };
+      const observer = new IntersectionObserver(callback, options);
+      observer.observe(observerRef.value);
     });
 
     const words = computed(() => {
       switch (selectedWords.value) {
         case "all":
-          return wordList.value;
+          return wordList.value.slice(0, totalWordsOnPage.value);
         case "learned":
-          return wordList.value.filter((word) => word.isLearned);
+          return wordList.value
+            .filter((word) => word.isLearned)
+            .slice(0, totalWordsOnPage.value);
         case "new":
-          return wordList.value.filter((word) => !word.isLearned);
+          return wordList.value
+            .filter((word) => !word.isLearned)
+            .slice(0, totalWordsOnPage.value);
         default:
-          return wordList.value;
+          return wordList.value.slice(0, totalWordsOnPage.value);
       }
     });
 
@@ -84,15 +90,9 @@ export default {
       reader.readAsArrayBuffer(file);
     };
 
-    // const loadMoreWords = () => {
-    //   dataTable.value = [
-    //     ...dataTable.value,
-    //     ...allDataTable.value.slice(
-    //       dataTable.value.length,
-    //       dataTable.value.length + limitWordOfPage
-    //     ),
-    //   ];
-    // };
+    const loadMoreWords = () => {
+      totalWordsOnPage.value = totalWordsOnPage.value + limitWordOfPage;
+    };
 
     return {
       observerRef,
